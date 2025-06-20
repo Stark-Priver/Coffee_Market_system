@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Customer Feedback - Coffee App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to right, #e0eafc, #cfdef3);
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      overflow-x: hidden;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 550px;
+      padding: 30px;
+      margin: 40px 0;
+    }
+    h1 {
+      text-align: center;
+      color: #1e2a78;
+      margin-bottom: 10px;
+    }
+    p.description {
+      text-align: center;
+      color: #666;
+      margin-bottom: 25px;
+    }
+    .input-group {
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: block;
+    }
+    input, textarea, select, button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      margin-top: 6px;
+    }
+    textarea {
+      resize: vertical;
+    }
+    button {
+      background-color: #1e8c4c;
+      color: white;
+      font-weight: 600;
+      border: none;
+      transition: background-color 0.3s ease;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #146a39;
+    }
+    #feedbackStatus, #loadingIndicator {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 16px;
+    }
+    #feedbackForm, #submissionRecord {
+      display: none;
+    }
+    footer {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 13px;
+      color: #555;
+    }
+    @media (max-width: 600px) {
+      .card {
+        padding: 20px;
+        margin: 20px 0;
+      }
+    }
+    #qr-reader {
+      width: 100%;
+      margin-top: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      overflow: hidden;
+      display: none;
+    }
+  </style>
+
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
+<body>
+
+<div class="container">
+  <div class="card">
+    <h1>Customer Feedback</h1>
+    <p class="description">COFFEE DETAILS AFTER COLLECTION TO THEIR STATION</p>
+
+    <!-- Customer Info Form -->
+    <form id="customerInfoForm">
+      <div class="input-group">
+        <label for="customerName">Your Name</label>
+        <input type="text" id="customerName" required />
+      </div>
+      <div class="input-group">
+        <label for="phoneNumber">Phone Number</label>
+        <input type="tel" id="phoneNumber" required />
+      </div>
+      <div class="input-group">
+        <label for="accountNumber">Account Number</label>
+        <input type="text" id="accountNumber" required />
+      </div>
+
+      <div class="input-group">
+        <button type="button" id="scanBeamBtn">Scan Beam Information</button>
+        <div id="qr-reader"></div>
+      </div>
+
+      <div id="beamFields" style="display: none;">
+        <div class="input-group">
+          <label for="beamType">coffee Type</label>
+          <input type="text" id="beamType" required />
+        </div>
+        <div class="input-group">
+          <label for="beamWeight">coffee Weight (kg)</label>
+          <input type="number" id="beamWeight" step="0.1" required />
+        </div>
+        <div class="input-group">
+          <label for="beamLocation"> customer Location</label>
+          <input type="text" id="beamLocation" required />
+        </div>
+      </div>
+
+      <button type="submit">Next</button>
+    </form>
+
+    <!-- Feedback Form -->
+    <form id="feedbackForm">
+      <div class="input-group">
+        <label for="coffeeQuality">Coffee Quality</label>
+        <select id="coffeeQuality" required>
+          <option value="" disabled selected>Select rating</option>
+          <option value="5">Excellent </option>
+          <option value="4">Good </option>
+          <option value="3">Average </option>
+          <option value="2">Poor </option>
+          <option value="1">Not Satisfied (1)</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="deliveryExperience">Delivery Experience</label>
+        <select id="deliveryExperience" required>
+          <option value="" disabled selected>Select rating</option>
+          <option value="5">Excellent </option>
+          <option value="4">Good </option>
+          <option value="3">Average </option>
+          <option value="2">Poor </option>
+          <option value="1">Not Satisfied </option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label for="comments">Additional Comments</label>
+        <textarea id="comments" rows="4"></textarea>
+      </div>
+      <button type="button" id="backBtn">Back</button>
+      <button type="submit">Submit Feedback</button>
+    </form>
+
+    <div id="loadingIndicator" style="display: none;">Submitting feedback...</div>
+    <div id="feedbackStatus"></div>
+
+    <div id="submissionRecord">
+      <h3>Submission Summary</h3>
+      <p><strong>Name:</strong> <span id="recordName"></span></p>
+      <p><strong>Phone:</strong> <span id="recordPhone"></span></p>
+      <p><strong>Account:</strong> <span id="recordAccount"></span></p>
+      <p><strong>Beam Type:</strong> <span id="recordBeamType"></span></p>
+      <p><strong>Beam Weight:</strong> <span id="recordBeamWeight"></span></p>
+      <p><strong>Beam Location:</strong> <span id="recordBeamLocation"></span></p>
+      <p><strong>Quality:</strong> <span id="recordQuality"></span></p>
+      <p><strong>Delivery:</strong> <span id="recordDelivery"></span></p>
+      <p><strong>Comments:</strong> <span id="recordComments"></span></p>
+      <button type="button" id="newFeedbackBtn">Submit Another Feedback</button>
+    </div>
+
+    <footer>
+      &copy; 2025 RUTAKUMWA COMPANY LIMITED
+    </footer>
+  </div>
+</div>
+
+<script>
+  let isScanning = false;
+  let html5QrCode = null;
+
+  const scanBeamBtn = document.getElementById("scanBeamBtn");
+  const qrReader = document.getElementById("qr-reader");
+  const beamFields = document.getElementById("beamFields");
+
+  scanBeamBtn.addEventListener("click", () => {
+    if (!isScanning) {
+      qrReader.style.display = "block";
+      beamFields.style.display = "none";
+      scanBeamBtn.textContent = "Stop Scanning";
+
+      if (!html5QrCode) {
+        html5QrCode = new Html5Qrcode("qr-reader");
+      }
+
+      Html5Qrcode.getCameras().then(cameras => {
+        if (cameras && cameras.length) {
+          html5QrCode.start(
+            cameras[0].id,
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            qrCodeMessage => {
+              const data = qrCodeMessage.split(";").reduce((acc, item) => {
+                const [key, value] = item.split(":");
+                if (key && value) acc[key.trim().toLowerCase()] = value.trim();
+                return acc;
+              }, {});
+              document.getElementById("beamType").value = data.type || "";
+              document.getElementById("beamWeight").value = data.weight || "";
+              document.getElementById("beamLocation").value = data.location || "";
+
+              html5QrCode.stop().then(() => {
+                isScanning = false;
+                scanBeamBtn.textContent = "Show Beam Information";
+                qrReader.style.display = "none";
+                beamFields.style.display = "block";
+              }).catch(err => console.error("Stop scan error:", err));
+            },
+            errorMessage => {}
+          ).catch(err => alert("Camera access error: " + err));
+          isScanning = true;
+        } else {
+          alert("No camera found.");
+        }
+      }).catch(err => alert("Camera access denied."));
+    } else {
+      html5QrCode.stop().then(() => {
+        isScanning = false;
+        qrReader.style.display = "none";
+        beamFields.style.display = "block";
+        scanBeamBtn.textContent = "Show Beam Information";
+      }).catch(err => alert("Failed to stop scanning."));
+    }
+  });
+
+  document.getElementById("customerInfoForm").addEventListener("submit", function (event) {
+    event.preventDefault();
+    document.getElementById("customerInfoForm").style.display = "none";
+    document.getElementById("feedbackForm").style.display = "block";
+  });
+
+  document.getElementById("backBtn").addEventListener("click", function () {
+    document.getElementById("feedbackForm").style.display = "none";
+    document.getElementById("customerInfoForm").style.display = "block";
+  });
+
+  document.getElementById("feedbackForm").addEventListener("submit", async function (event) {
+    event.preventDefault();
+    document.getElementById("loadingIndicator").style.display = "block";
+
+    const name = document.getElementById("customerName").value;
+    const phone = document.getElementById("phoneNumber").value;
+    const accountNumber = document.getElementById("accountNumber").value;
+    const beamType = document.getElementById("beamType").value;
+    const beamWeight = document.getElementById("beamWeight").value;
+    const beamLocation = document.getElementById("beamLocation").value;
+    const quality = document.getElementById("coffeeQuality").value;
+    const delivery = document.getElementById("deliveryExperience").value;
+    const comments = document.getElementById("comments").value;
+
+    const feedback = {
+      name, phone, accountNumber, beamType, beamWeight, beamLocation,
+      coffeeQuality: quality,
+      deliveryExperience: delivery,
+      comments
+    };
+
+    try {
+      await fetch('/send-sms', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phoneNumber: phone,
+          message: `Thank you ${name} for your coffee delivery feedback!`
+        })
+      });
+
+      const response = await fetch('/submit-feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(feedback)
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        document.getElementById("feedbackStatus").textContent = "✅ Feedback submitted successfully!";
+        document.getElementById("submissionRecord").style.display = "block";
+        document.getElementById("recordName").textContent = name;
+        document.getElementById("recordPhone").textContent = phone;
+        document.getElementById("recordAccount").textContent = accountNumber;
+        document.getElementById("recordBeamType").textContent = beamType;
+        document.getElementById("recordBeamWeight").textContent = beamWeight;
+        document.getElementById("recordBeamLocation").textContent = beamLocation;
+        document.getElementById("recordQuality").textContent = quality;
+        document.getElementById("recordDelivery").textContent = delivery;
+        document.getElementById("recordComments").textContent = comments;
+        document.getElementById("feedbackForm").style.display = "none";
+      } else {
+        document.getElementById("feedbackStatus").textContent = "⚠️ Failed to save feedback.";
+      }
+    } catch (err) {
+      document.getElementById("feedbackStatus").textContent = "❌ An error occurred.";
+      console.error(err);
+    }
+
+    document.getElementById("loadingIndicator").style.display = "none";
+  });
+
+  document.getElementById("newFeedbackBtn").addEventListener("click", () => {
+    document.getElementById("submissionRecord").style.display = "none";
+    document.getElementById("customerInfoForm").reset();
+    document.getElementById("feedbackForm").reset();
+    beamFields.style.display = "none";
+    document.getElementById("customerInfoForm").style.display = "block";
+    document.getElementById("feedbackStatus").textContent = "";
+    scanBeamBtn.textContent = "Scan Beam Information";
+  });
+</script>
+
+</body>
+</html>
