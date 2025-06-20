@@ -1,2 +1,0 @@
-print"helleow"
-print("hellow")
