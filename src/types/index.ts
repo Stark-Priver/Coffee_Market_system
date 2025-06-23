@@ -39,3 +39,37 @@ export interface QRCodeData {
   weight: string
   location: string
 }
+
+export interface SMSMessage {
+  id: string
+  user_id: string
+  recipient_phone: string
+  recipient_name: string
+  message: string
+  status: 'pending' | 'sent' | 'delivered' | 'failed'
+  twilio_message_id?: string
+  sent_at?: string
+  created_at: string
+}
+
+export interface SMSRequest {
+  to: string
+  message: string
+  customerName?: string
+}
+
+export interface BulkSMSRequest {
+  recipients: Array<{
+    to: string
+    message: string
+    customerName?: string
+  }>
+}
+
+export interface MessageTemplate {
+  id: string
+  name: string
+  content: string
+  variables: string[]
+  created_at: string
+}

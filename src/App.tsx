@@ -10,6 +10,8 @@ import { Dashboard } from './pages/Dashboard'
 import { FeedbackForm } from './pages/FeedbackForm'
 import { FeedbackRecords } from './pages/FeedbackRecords'
 import { Profile } from './pages/Profile'
+import { SendMessage } from './pages/SendMessage'
+import { MessageHistory } from './pages/MessageHistory'
 
 function App() {
   return (
@@ -37,6 +39,20 @@ function App() {
               <ProtectedRoute>
                 <Layout>
                   <FeedbackRecords />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/send-message" element={
+              <ProtectedRoute>
+                <Layout>
+                  <SendMessage />
+                </Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/message-history" element={
+              <ProtectedRoute>
+                <Layout>
+                  <MessageHistory />
                 </Layout>
               </ProtectedRoute>
             } />

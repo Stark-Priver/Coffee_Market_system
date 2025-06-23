@@ -77,6 +77,73 @@ export interface Database {
           updated_at?: string
         }
       }
+      sms_messages: {
+        Row: {
+          id: string
+          user_id: string
+          recipient_phone: string
+          recipient_name: string
+          message: string
+          status: 'pending' | 'sent' | 'delivered' | 'failed'
+          twilio_message_id: string | null
+          sent_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          recipient_phone: string
+          recipient_name: string
+          message: string
+          status?: 'pending' | 'sent' | 'delivered' | 'failed'
+          twilio_message_id?: string | null
+          sent_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          recipient_phone?: string
+          recipient_name?: string
+          message?: string
+          status?: 'pending' | 'sent' | 'delivered' | 'failed'
+          twilio_message_id?: string | null
+          sent_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      message_templates: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          content: string
+          variables: string[]
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          content: string
+          variables?: string[]
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          content?: string
+          variables?: string[]
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { Coffee, Home, MessageSquare, FileText, User, LogOut } from 'lucide-react'
+import { Coffee, Home, MessageSquare, FileText, User, LogOut, Send, History } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 interface LayoutProps {
@@ -27,6 +27,8 @@ export function Layout({ children }: LayoutProps) {
     { name: 'Dashboard', href: '/', icon: Home },
     { name: 'Submit Feedback', href: '/feedback', icon: MessageSquare },
     { name: 'View Records', href: '/records', icon: FileText },
+    { name: 'Send Messages', href: '/send-message', icon: Send },
+    { name: 'Message History', href: '/message-history', icon: History },
     { name: 'Profile', href: '/profile', icon: User },
   ]
 
